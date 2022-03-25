@@ -1,0 +1,17 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+@if (SignInManager.IsSignedIn(User)) {
+<div class="text-center">
+    <h1 class="display-4">Welcome you are signed in</h1>
+</div>
+}
+else {
+    <div class="text-center">
+        <h1 class="display-4">Welcome</h1>
+    </div>
+}
