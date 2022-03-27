@@ -14,5 +14,6 @@ namespace dashboard_web.Data
         {
         }
         public DbSet<dashboard_web.Models.Credentials> Credentials { get; set; }
+        public DbSet<dashboard_web.Models.Dashboard> Dashboard { get; set; }
     }
 }

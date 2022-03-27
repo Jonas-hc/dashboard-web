@@ -2,16 +2,27 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
+
 @{
     ViewData["Title"] = "Home Page";
 }
-@if (SignInManager.IsSignedIn(User)) {
-<div class="text-center">
-    <h1 class="display-4">Welcome you are signed in</h1>
-</div>
-}
-else {
+@if (SignInManager.IsSignedIn(User))
+{
+    
+    
     <div class="text-center">
-        <h1 class="display-4">Welcome</h1>
+        <h1 class="display-4">Signed in</h1>
+        <ul>
+            @foreach (var entry in Program.staticList)
+            {
+                <li>@entry</li>
+            }
+        </ul>
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <h2 class="display-4">Please log in to use the dashboard</h2>
     </div>
 }

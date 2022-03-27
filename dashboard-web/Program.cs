@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Azure.Identity;
 using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 
 namespace dashboard_web
 {
@@ -15,8 +16,6 @@ namespace dashboard_web
     {
         public static void Main(string[] args)
         {
-            //string responseMessage = CallWebService("Kolding", "Jeger1studerende");
-            //Console.WriteLine(responseMessage);
             CreateHostBuilder(args).Build().Run(); 
         }
 
@@ -24,13 +23,16 @@ namespace dashboard_web
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>()
-                        .ConfigureAppConfiguration((ctx, builder) => {
+                    webBuilder.UseStartup<Startup>();
+                        /*.ConfigureAppConfiguration((ctx, builder) => {
                             var config = builder.Build();
                             Console.WriteLine(config["KeyVault:BaseUrl"]);
                             builder.AddAzureKeyVault(config["KeyVault:BaseUrl"]);
-                        });
+                        });*/
         });
+        public static List<string> staticList = new List<string>
+        {
+        };
 
         public static HttpWebRequest CreateWebRequest(string url)
         {
@@ -66,6 +68,7 @@ namespace dashboard_web
                 {
                     soapResult = rd.ReadToEnd();
                 }
+                //return soapResult;
 
                 string str = string.Format("<id>{0}", location);
                 int startIdx = soapResult.IndexOf(str);
@@ -109,9 +112,12 @@ namespace dashboard_web
                 var temp = jo["forecast"]["temp"];
                 var windchill = jo["forecast"]["windchill"];
                 var weather1 = jo["forecast"]["datetime"];
+                temp = temp ?? "No data found";
+                windchill = windchill ?? "No data found";
+                weather1 = weather1 ?? "No data found";
 
 
-                Weather weather = new Weather((double)temp, (double)windchill, (string)weather1);
+                Weather weather = new Weather((string)temp, (string)windchill, (string)weather1);
 
                 string weatherObj = JsonConvert.SerializeObject(weather);
                 return weatherObj;
@@ -150,16 +156,117 @@ namespace dashboard_web
 
         public class Weather
         {
-            public double Temp;
-            public double Windchill;
+            public string Temp;
+            public string Windchill;
             public string DateAndTime;
 
-            public Weather(double temp, double wc, string dt)
+            public Weather(string temp, string wc, string dt)
             {
                 Temp = temp;
                 Windchill = wc;
                 DateAndTime = dt;
             }
         }
+
+       /*public static string GetFileName(string username, string pw)
+        {
+            string url = string.Format("ftp://inverter.westeurope.cloudapp.azure.com");
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(url);
+            request.Method = WebRequestMethods.Ftp.ListDirectory;
+
+            string user = username;
+            string password = pw;
+
+            request.Credentials = new NetworkCredential(user, password);
+
+            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+            var stream = response.GetResponseStream();
+            var reader = new StreamReader(stream);
+
+
+            List<string> strContent = new List<string>();
+            while (!reader.EndOfStream)
+            {
+                var a = reader.ReadLine();
+                Console.WriteLine(a);
+                Console.WriteLine(" ");
+                strContent.Add(a);
+            }
+            var item = "";
+            if (strContent.Count > 0)
+            {
+                item = strContent[^1];
+            }
+            return item;
+        }*/
+
+        /*public static int Getoutput(string username, string pw, string fileName)
+        {
+            string url = string.Format("ftp://inverter.westeurope.cloudapp.azure.com/{0}", fileName);
+            FtpWebRequest request1 = (FtpWebRequest)WebRequest.Create(url);
+            request1.Method = WebRequestMethods.Ftp.DownloadFile;
+
+            string user = username;
+            string password = pw;
+
+            request1.Credentials = new NetworkCredential(user, password);
+
+            FtpWebResponse response1 = (FtpWebResponse)request1.GetResponse();
+            var stream1 = response1.GetResponseStream();
+            var reader1 = new StreamReader(stream1);
+            Console.WriteLine(reader1.ReadToEnd()); 
+
+            List<string> strContent = new List<string>();
+
+            while (!reader1.EndOfStream)
+            {
+                strContent.Add(reader1.ReadLine());
+            }
+
+            int hourEnd = 0;
+            int hourStart = 0;
+            Boolean unlock = false;
+            List<string> outPut = new List<string>();
+
+
+            foreach (var line in strContent)
+            {
+                var values = line.Split(";");
+                if (line.Contains("[wr_ende]"))
+                {
+                    unlock = false;
+                }
+
+                if (unlock)
+                {
+                    outPut.Add($"{values[38]}");
+                }
+
+                if (line.Contains("INTERVAL;"))
+                {
+                    unlock = true;
+                }
+            }
+
+            int lastIdx = outPut.Count;
+            hourStart = Int32.Parse(outPut[0]);
+            hourEnd = Int32.Parse(outPut[lastIdx - 1]);
+            int sum = hourEnd - hourStart;
+
+            reader1.Close();
+            response1.Close();
+            return sum;
+        }
+
+        public class Output
+        {
+            public int PowerOutput;
+
+            public Output(int pop)
+            {
+                PowerOutput = pop;
+            }
+        }*/
+
     }
 }

@@ -8,28 +8,65 @@ using Microsoft.EntityFrameworkCore;
 using dashboard_web.Data;
 using dashboard_web.Models;
 using Microsoft.AspNetCore.Authorization;
+using static dashboard_web.Program;
+using Newtonsoft.Json;
 
 namespace dashboard_web.Controllers
 {
     [Authorize]
-    public class CredentialsController : Controller
+    public class DashboardController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public CredentialsController(ApplicationDbContext context)
+        public DashboardController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Credentials
+        // GET: Dashboard
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Credentials.ToListAsync());
+            GetFileName fn = new GetFileName();
+            var listOfCredentials = await _context.Credentials.ToListAsync();
+            Credentials cd = new Credentials();
+            var message = "";
+
+            foreach (var credential in listOfCredentials)
+            {
+                if (credential.ID == 1)
+                {
+                    cd = credential;
+                    
+                }
+                if (credential.ID == 2)
+                {
+                    message = CallWebService("Kolding", credential.Password);
+                }
+            }
+
+            string file = fn.GetFileNameMethod(cd.UserName, cd.Password);
+            string a =  GetFileAndOutPut(cd.UserName, cd.Password, file);
+
+            var result = JsonConvert.DeserializeObject<Weather>(message);
+
+            ViewBag.Temp = result.Temp;
+            ViewBag.WindChill = result.Windchill;
+            ViewBag.DateAndTime = result.DateAndTime;
+            ViewBag.Output = a;
+
+            return View();
         }
 
- 
+        public string GetFileAndOutPut(string un, string pw, string file)
+        {
+            GetOutput op = new GetOutput();
+            int res = op.Getoutput(un, pw, file);
+            Output pop = new Output(res);
 
-        // GET: Credentials/Details/5
+            return pop.PowerOutput.ToString();
+        }
+
+        // GET: Dashboard/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -47,13 +84,13 @@ namespace dashboard_web.Controllers
             return View(credentials);
         }
 
-        // GET: Credentials/Create
+        // GET: Dashboard/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Credentials/Create
+        // POST: Dashboard/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -69,7 +106,7 @@ namespace dashboard_web.Controllers
             return View(credentials);
         }
 
-        // GET: Credentials/Edit/5
+        // GET: Dashboard/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -85,7 +122,7 @@ namespace dashboard_web.Controllers
             return View(credentials);
         }
 
-        // POST: Credentials/Edit/5
+        // POST: Dashboard/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -120,7 +157,7 @@ namespace dashboard_web.Controllers
             return View(credentials);
         }
 
-        // GET: Credentials/Delete/5
+        // GET: Dashboard/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -138,7 +175,7 @@ namespace dashboard_web.Controllers
             return View(credentials);
         }
 
-        // POST: Credentials/Delete/5
+        // POST: Dashboard/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -152,6 +189,15 @@ namespace dashboard_web.Controllers
         private bool CredentialsExists(int id)
         {
             return _context.Credentials.Any(e => e.ID == id);
+        }
+        public class Output
+        {
+            public int PowerOutput;
+
+            public Output(int pop)
+            {
+                PowerOutput = pop;
+            }
         }
     }
 }
