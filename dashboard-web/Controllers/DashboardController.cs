@@ -26,10 +26,14 @@ namespace dashboard_web.Controllers
         // GET: Dashboard
         public async Task<IActionResult> Index()
         {
+            
             GetFileName fn = new GetFileName();
             var listOfCredentials = await _context.Credentials.ToListAsync();
             Credentials cd = new Credentials();
+            GetTemp getTemp = new GetTemp();
             var message = "";
+            string[] office = new string[3]; 
+            
 
             foreach (var credential in listOfCredentials)
             {
@@ -42,6 +46,14 @@ namespace dashboard_web.Controllers
                 {
                     message = CallWebService("Kolding", credential.Password);
                 }
+                if (credential.UserName.Equals("ConnectionString"))
+                {
+                    Temperatur officeTemp = getTemp.GetData(credential.Password);
+                    office[0] = officeTemp.Temp;
+                    office[1] = officeTemp.Time;
+                    office[2] = officeTemp.Date;
+                }
+                
             }
 
             string file = fn.GetFileNameMethod(cd.UserName, cd.Password);
@@ -53,6 +65,9 @@ namespace dashboard_web.Controllers
             ViewBag.WindChill = result.Windchill;
             ViewBag.DateAndTime = result.DateAndTime;
             ViewBag.Output = a;
+            ViewBag.OfficeTemperature = office[0];
+            ViewBag.OfficeTemperatureTime = office[1];
+            ViewBag.OfficeTemperatureDate = office[2];
 
             return View();
         }

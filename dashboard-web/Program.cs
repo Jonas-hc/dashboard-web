@@ -24,11 +24,6 @@ namespace dashboard_web
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                        /*.ConfigureAppConfiguration((ctx, builder) => {
-                            var config = builder.Build();
-                            Console.WriteLine(config["KeyVault:BaseUrl"]);
-                            builder.AddAzureKeyVault(config["KeyVault:BaseUrl"]);
-                        });*/
         });
         public static List<string> staticList = new List<string>
         {
@@ -128,8 +123,6 @@ namespace dashboard_web
         public static XmlDocument CreateSoapEnvelope(string location, string key)
         {
             XmlDocument soapEnvelopeDocument = new XmlDocument();
-            Console.WriteLine(" -- Jonas --");
-            Console.WriteLine(key);
 
             String s = String.Format("" +
                 @"<?xml version=""1.0"" encoding=""utf-8""?>
@@ -167,106 +160,5 @@ namespace dashboard_web
                 DateAndTime = dt;
             }
         }
-
-       /*public static string GetFileName(string username, string pw)
-        {
-            string url = string.Format("ftp://inverter.westeurope.cloudapp.azure.com");
-            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(url);
-            request.Method = WebRequestMethods.Ftp.ListDirectory;
-
-            string user = username;
-            string password = pw;
-
-            request.Credentials = new NetworkCredential(user, password);
-
-            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-            var stream = response.GetResponseStream();
-            var reader = new StreamReader(stream);
-
-
-            List<string> strContent = new List<string>();
-            while (!reader.EndOfStream)
-            {
-                var a = reader.ReadLine();
-                Console.WriteLine(a);
-                Console.WriteLine(" ");
-                strContent.Add(a);
-            }
-            var item = "";
-            if (strContent.Count > 0)
-            {
-                item = strContent[^1];
-            }
-            return item;
-        }*/
-
-        /*public static int Getoutput(string username, string pw, string fileName)
-        {
-            string url = string.Format("ftp://inverter.westeurope.cloudapp.azure.com/{0}", fileName);
-            FtpWebRequest request1 = (FtpWebRequest)WebRequest.Create(url);
-            request1.Method = WebRequestMethods.Ftp.DownloadFile;
-
-            string user = username;
-            string password = pw;
-
-            request1.Credentials = new NetworkCredential(user, password);
-
-            FtpWebResponse response1 = (FtpWebResponse)request1.GetResponse();
-            var stream1 = response1.GetResponseStream();
-            var reader1 = new StreamReader(stream1);
-            Console.WriteLine(reader1.ReadToEnd()); 
-
-            List<string> strContent = new List<string>();
-
-            while (!reader1.EndOfStream)
-            {
-                strContent.Add(reader1.ReadLine());
-            }
-
-            int hourEnd = 0;
-            int hourStart = 0;
-            Boolean unlock = false;
-            List<string> outPut = new List<string>();
-
-
-            foreach (var line in strContent)
-            {
-                var values = line.Split(";");
-                if (line.Contains("[wr_ende]"))
-                {
-                    unlock = false;
-                }
-
-                if (unlock)
-                {
-                    outPut.Add($"{values[38]}");
-                }
-
-                if (line.Contains("INTERVAL;"))
-                {
-                    unlock = true;
-                }
-            }
-
-            int lastIdx = outPut.Count;
-            hourStart = Int32.Parse(outPut[0]);
-            hourEnd = Int32.Parse(outPut[lastIdx - 1]);
-            int sum = hourEnd - hourStart;
-
-            reader1.Close();
-            response1.Close();
-            return sum;
-        }
-
-        public class Output
-        {
-            public int PowerOutput;
-
-            public Output(int pop)
-            {
-                PowerOutput = pop;
-            }
-        }*/
-
     }
 }

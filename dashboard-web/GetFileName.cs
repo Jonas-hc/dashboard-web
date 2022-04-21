@@ -30,8 +30,6 @@ namespace dashboard_web
             while (!reader.EndOfStream)
             {
                 var a = reader.ReadLine();
-                Console.WriteLine(a);
-                Console.WriteLine(" ");
                 strContent.Add(a);
             }
             var item = "";
